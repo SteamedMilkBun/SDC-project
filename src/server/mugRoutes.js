@@ -1,33 +1,62 @@
 import express from 'express';
 import pool from './pool.js';
+import axios from 'axios';
+import Redis from 'redis';
+
+const redisClient = Redis.createClient();
+await redisClient.connect();
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
+
     try {
-        const data = await pool.query('SELECT * FROM mugs');
-        console.log("Result of get all products query: ", data.rows);
-        res.json(data.rows);
+        const mugsData = await redisClient.get('mugs', (error) => {
+            if (error) {
+                console.error(error);
+                res.sendStatus(500);
+            }
+        })
+        console.log(mugsData);
+        if (mugsData != null) {
+            res.json(mugsData);
+        } else {
+            const { data } = await axios.get('https://fec-project-tjyl.onrender.com/mugs');
+            redisClient.setEx('mugs', 60, JSON.stringify(data));
+            res.json(data);
+        }
     }
     catch(err){
         console.error(err);
         res.sendStatus(500);
     }
+
 })
 
 router.get('/:id', async (req, res) => {
     //TODO edge cases for id
     const id = Number.parseInt(req.params.id);
+
     try {
-        const data = await pool.query(
-            `SELECT * FROM mugs
-            WHERE mug_id = $1`,
-            [id]
-        )
-        console.log("Result of get all mugs query: ", data.rows[0]);
-        res.json(data.rows[0]);
+        const mugData = await redisClient.get(`mug?id=${id}`, async (error) => {
+            if (error) {
+                console.error(err);
+                res.sendStatus(500);
+            }
+        })
+        console.log(mugData);
+        if (mugData != null) {
+            res.json(mugData);
+        } else {
+            const { data } = await axios.get(
+                `https://fec-project-tjyl.onrender.com/mugs/${id}`
+            );
+            redisClient.setEx(`mug?id=${id}`, 30, JSON.stringify(data));
+            res.json(data);
+        }
+        
     }
-    catch (err) {
+    catch(err){
         console.error(err);
         res.sendStatus(500);
     }

@@ -10,13 +10,13 @@ const pool = new pg.Pool({
     }
 });
 
-pool.connect()
-    .then((client) => {
-        console.log(`Connected to postgres using connection string ${process.env.DB_URL}`);
-        client.release();
-    })
-    .catch((err) => {
-        console.log("Failed to connect to postgres:", err);
-    });
+// pool.connect()
+//     .then((client) => {
+//         console.log(`Connected to postgres using connection string ${process.env.DB_URL}`);
+//         client.release();
+//     })
+//     .catch((err) => {
+//         console.log("Failed to connect to postgres:", err);
+//     });
 
 export default pool;
