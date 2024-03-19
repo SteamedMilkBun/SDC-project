@@ -1,24 +1,11 @@
-# MCSPA-2312A FEC Project / Code Whisperers
+# MCSPA-2312A SDC Project
 
 
 ### Description
-This front-end capstone project is replicates this product page:
-- https://bluebottlecoffee.com/us/eng/product/fellow-carter-move-fog-grey-12oz-holiday?a_idx=us-production-shopCollectionProducts&a_oID=travel-mugs.fellow-carter-move-fog-grey-12oz-holiday&a_qID=bf642047bf8a7b7f3d1f493a0fe97f11&a_pos=0
+This system design capstone (SDC) project implements Redis caching to the previous front-end capstone project.
 
-### Component Assignments
-- Header: Park
-- Main: Humberto
-- Submain: Lance
-- Footer: Brandon
+Software optimization is an integral aspect of system design, and caching is one of many techniques towards optimization. This project aims to focus on a the common bottleneck that exists between the back-end server and the back-end database. Differences in speed for a cache miss and a cache hit are demonstrated in the SDC Video mp4 file.
 
-### Installation
-1) Create a react app by executing npm create vite@latest
-2) Execute ``npm install`` to install the following dependencies:
-  - bootstrap, cors, dotenv, express, pg, react, react-bootstrap, react-dom, react-router-dom, react-slick, slick-carousel 
-3) Execute ``npm run dev`` and click on the localhost link in order to see the entire project
-
-### Credits 
-- @pKr-1001 (Park)
-- @HumbertoPalacios (Humberto)
-- @SteamedMilkBun(Lance)
-- @bphillip97 (Brandon)
+### Technologies Used:
+- Redis
+- all technologies used in the FEC
