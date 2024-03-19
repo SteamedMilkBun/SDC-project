@@ -8,31 +8,51 @@ await redisClient.connect();
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
 
+
+// router.get('/', async (req, res) => {
+
+//     try {
+//         const mugsData = await redisClient.get('mugs', (error) => {
+//             if (error) {
+//                 console.error(error);
+//                 res.sendStatus(500);
+//             }
+//         })
+//         console.log(mugsData);
+//         if (mugsData != null) {
+//             res.json(mugsData);
+//         } else {
+//                 const { data } = await axios.get('https://fec-project-tjyl.onrender.com/mugs');
+//                 redisClient.setEx('mugs', 30, JSON.stringify(data));
+//                 res.json(data);
+//         }
+//     }
+//     catch(err){
+//         console.error(err);
+//         res.sendStatus(500);
+//     }
+    
+// })
+  
+router.get('/', async (req, res) => {
     try {
-        const mugsData = await redisClient.get('mugs', (error) => {
-            if (error) {
-                console.error(error);
-                res.sendStatus(500);
-            }
-        })
+        console.log('inside try block');
+        console.log("await getorsetcache")
+        const mugsData = await getOrSetCache(`mugs`, async () => {
+            console.log(`axios get instead`);
+            const {data} = await axios.get('https://fec-project-tjyl.onrender.com/mugs');
+            return data;
+        });
         console.log(mugsData);
-        if (mugsData != null) {
-            res.json(mugsData);
-        } else {
-            const { data } = await axios.get('https://fec-project-tjyl.onrender.com/mugs');
-            redisClient.setEx('mugs', 60, JSON.stringify(data));
-            res.json(data);
-        }
+        res.json(mugsData);
     }
     catch(err){
-        console.error(err);
-        res.sendStatus(500);
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-
-})
-
+})                   
+                        
 router.get('/:id', async (req, res) => {
     //TODO edge cases for id
     const id = Number.parseInt(req.params.id);
@@ -128,5 +148,23 @@ router.delete('/:id', async (req, res) => {
         res.sendStatus(500);
     }
 })
+
+const getOrSetCache = (key, cb) => {
+    return new Promise((resolve, reject) => {
+        redisClient.get(key)
+        .then(async (mugsData) => {
+            console.log('ctrl flow');
+            if (mugsData !== null) {
+                resolve(JSON.parse(mugsData));
+            }
+            else {
+                const freshData = await cb();
+                console.log(freshData);
+                redisClient.setEx(key, 30, JSON.stringify(freshData));
+                resolve(freshData);
+            }
+        })
+    })
+}
 
 export default router;
